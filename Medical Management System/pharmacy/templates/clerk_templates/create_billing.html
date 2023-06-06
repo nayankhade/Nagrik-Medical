@@ -1,0 +1,103 @@
+{% extends 'clerk_templates/base_template.html'%} {% load crispy_forms_tags %} {% block page_title %}
+<h5>Add Billing</h5>
+{% endblock page_title %} {% block main_content %}
+<section class="content" style="">
+    <div class="container-fluid">
+        <div class="row mt-3">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h3 class="card-title">Add Billing</h3>
+                    </div>
+                    <form role="form" method="POST" enctype="multipart/form-data">
+                        {% csrf_token %} {% if messages %}
+                        <div class="form-group">
+                            <div class="col-12">
+                                {% for message in messages %} {% if message.tags == "error" %}
+                                <div class="alert alert-danger alert-dismissible fade show" role="alert" style="margin-top: 10px;">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                           </button>
+                                </div>
+                                {% elif message.tags == "success" %}
+                                <div class="alert alert-success alert-dismissible fade show" role="alert" style="margin-top: 10px;">
+                                    {{ message }}
+                                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                           <span aria-hidden="true">&times;</span>
+                           </button>
+                                </div>
+                                {% endif %} {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+                        <div class="card-body">
+                            <div class="form-group">
+                                {{ form|crispy }}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <button type="submit" class="btn btn-primary">Submit</button>   
+                            <a href="{% url 'pdf_view' %}" target="_blank">Download PDF</a>               
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section> 
+
+<script>
+    function fetchMedicineData() {
+    // Get the selected medicine value
+    var medicineField = document.getElementById('id_tablet');
+    var selectedMedicine = medicineField.value;
+
+    // Make an AJAX request to fetch medicine data based on the selected value
+    // You can use JavaScript libraries like jQuery or fetch API for the AJAX request
+
+    // Example using fetch API
+    fetch('/fetch-medicine-data/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCSRFToken()  // Include CSRF token if required
+        },
+        body: JSON.stringify({ medicine: selectedMedicine })
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Process the fetched data and update the relevant fields or perform any necessary actions
+        // Example: Update the quantity and price fields based on the fetched data
+        var quantityField = document.getElementById('id_quantity');
+        var priceField = document.getElementById('id_price');
+
+        // Update the quantity and price fields with the fetched data
+        quantityField.value = data.quantity;
+        priceField.value = data.price;
+    })
+    .catch(error => {
+        console.log('Error fetching medicine data:', error);
+    });
+}
+
+// Helper function to get the CSRF token value
+function getCSRFToken() {
+    var cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        var cookies = document.cookie.split(';');
+        for (var i = 0; i < cookies.length; i++) {
+            var cookie = cookies[i].trim();
+            // Search for the 'csrftoken' cookie
+            if (cookie.substring(0, 10) === 'csrftoken=') {
+                cookieValue = decodeURIComponent(cookie.substring(10));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+</script>
+
+{% endblock main_content %}
